@@ -11,7 +11,7 @@ async function startServer() {
 	// Configure CORS properly
 	app.use(
 		cors({
-			origin: 'http://localhost:3000', // Your frontend URL
+			origin: 'https://wonderful-ocean-082528d03.6.azurestaticapps.net/', // Your frontend URL
 			credentials: true,
 			methods: ['GET', 'POST', 'OPTIONS'],
 			allowedHeaders: ['Content-Type', 'Authorization'],
