@@ -1,25 +1,19 @@
-import logo from './logo.svg';
+import React from 'react';
+import { ApolloProvider } from '@apollo/client';
+import client from './apollo/client';
+import { PropertyProvider } from './context/PropertyContext';
+
+import InteractivePropertyMap from './components/InteractivePropertyMap';
 import './App.css';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+	return (
+		<ApolloProvider client={client}>
+			<PropertyProvider>
+				<InteractivePropertyMap />
+			</PropertyProvider>
+		</ApolloProvider>
+	);
 }
 
 export default App;
