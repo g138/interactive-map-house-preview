@@ -96,31 +96,88 @@ const properties = [
 	},
 ];
 
+const propertyRepository = require('../../repositories/propertyRepository');
+
 // Resolvers
 const resolvers = {
 	Query: {
-		listProperties: () => {
-			return properties;
+		property: async (_, { id }) => {
+			return propertyRepository.getPropertyById(id);
 		},
-		getHouseByLocation: (_, { x, y }) => {
+
+		getHouseByLocation: async (_, { x, y }) => {
 			console.log(`Looking for property at coordinates: (${x}, ${y})`);
+			return propertyRepository.getPropertyByCoordinates(x, y);
+		},
 
-			// Find property whose area contains the clicked point
-			const property = properties.find((property) => {
-				const halfWidth = property.width / 2;
-				const halfHeight = property.height / 2;
+		listProperties: async (_, { filter }) => {
+			// Convert GraphQL filter to MongoDB filter
+			const mongoFilter = {};
 
-				// Check if point is within rectangular area
-				return x >= property.x - halfWidth && x <= property.x + halfWidth && y >= property.y - halfHeight && y <= property.y + halfHeight;
-			});
+			if (filter) {
+				if (filter.priceMin !== undefined && filter.priceMax !== undefined) {
+					mongoFilter.price = { $gte: filter.priceMin, $lte: filter.priceMax };
+				} else if (filter.priceMin !== undefined) {
+					mongoFilter.price = { $gte: filter.priceMin };
+				} else if (filter.priceMax !== undefined) {
+					mongoFilter.price = { $lte: filter.priceMax };
+				}
 
-			if (property) {
-				console.log(`Found property: ${property.title}`);
-			} else {
-				console.log('No property found at these coordinates');
+				if (filter.bedrooms !== undefined) {
+					mongoFilter.bedrooms = filter.bedrooms;
+				}
+
+				if (filter.status !== undefined) {
+					mongoFilter.status = filter.status;
+				}
+
+				if (filter.section !== undefined) {
+					mongoFilter.section = filter.section;
+				}
 			}
 
-			return property || null;
+			return propertyRepository.getProperties(mongoFilter);
+		},
+	},
+
+	Mutation: {
+		createProperty: async (_, { input }) => {
+			return propertyRepository.createProperty(input);
+		},
+
+		updateProperty: async (_, { id, input }) => {
+			return propertyRepository.updateProperty(id, input);
+		},
+
+		deleteProperty: async (_, { id }) => {
+			return propertyRepository.deleteProperty(id);
+		},
+
+		requestPropertyViewing: async (_, { propertyId, name, email, phone }) => {
+			// In a real implementation, you would save this to a separate collection
+			console.log(`Request viewing for property ${propertyId} from ${name} (${email})`);
+			return true;
+		},
+	},
+
+	Property: {
+		id: (parent) => {
+			// Debug the parent object
+			console.log('Parent object:', parent);
+
+			// Check for MongoDB _id (most likely)
+			if (parent._id) {
+				return parent._id.toString();
+			}
+
+			// Check for existing id
+			if (parent.id) {
+				return parent.id;
+			}
+
+			// If neither exists, log error and return a placeholder
+			console.error('Property missing both _id and id:', parent);
+			return 'unknown-id';
 		},
 	},
 };

@@ -1,25 +1,26 @@
 {
-    "name": "interactive-map-house-preview-server",
-    "version": "1.0.0",
-    "description": "Backend server for Balmoston Property Map",
-    "main": "src/index.js",
-    "scripts": {
-        "start": "nodemon src/index.js",
-        "build": "mkdir -p dist && cp -r src/* dist/",
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "keywords": [],
-    "author": "",
-    "license": "ISC",
-    "dependencies": {
-        "apollo-server": "^3.13.0",
-        "apollo-server-express": "^3.13.0",
-        "cors": "^2.8.5",
-        "dotenv": "^16.4.7",
-        "express": "^4.21.2",
-        "graphql": "^16.10.0"
-    },
-    "devDependencies": {
-        "nodemon": "^3.0.1"
-    }
+	"name": "interactive-map-house-preview-server",
+	"version": "1.0.0",
+	"description": "Backend server for Balmoston Property Map",
+	"main": "src/index.js",
+	"scripts": {
+		"start": "node src/index.js",
+		"build": "echo 'No build step needed'",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"apollo-server": "^3.13.0",
+		"apollo-server-express": "^3.13.0",
+		"cors": "^2.8.5",
+		"dotenv": "^16.4.7",
+		"express": "^4.21.2",
+		"graphql": "^16.10.0",
+		"mongodb": "^6.15.0"
+	},
+	"devDependencies": {
+		"nodemon": "^3.0.1"
+	}
 }
