@@ -1,5 +1,3 @@
-const { isPointInPolygon } = require('../../utils/mapUtils');
-
 const properties = [
 	{
 		id: '1',
