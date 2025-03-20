@@ -1,0 +1,33 @@
+{
+    "folders": [
+      {
+        "name": "Root",
+        "path": "."
+      },
+      {
+        "name": "Client",
+        "path": "client"
+      },
+      {
+        "name": "Server",
+        "path": "server"
+      }
+    ],
+    "settings": {
+      "editor.tabSize": 2,
+      "editor.detectIndentation": false,
+      "editor.insertSpaces": true,
+      "editor.formatOnSave": true,
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "javascript.updateImportsOnFileMove.enabled": "always",
+      "javascript.preferences.importModuleSpecifier": "relative"
+    },
+    "extensions": {
+      "recommendations": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "graphql.vscode-graphql"
+      ]
+    }
+  }

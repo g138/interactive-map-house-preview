@@ -1,39 +1,27 @@
 {
   "name": "interactive-map-house-preview",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "Interactive property map application for Balmoston, Donabate",
   "private": true,
-  "dependencies": {
-    "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.2.0",
-    "@testing-library/user-event": "^13.5.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
-  },
+  "workspaces": [
+    "client",
+    "server"
+  ],
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "concurrently \"npm run start:client\" \"npm run start:server\"",
+    "start:client": "npm run start --workspace=client",
+    "start:server": "npm run start --workspace=server",
+    "build": "npm run build --workspace=client && npm run build --workspace=server",
+    "test": "npm run test --workspace=client && npm run test --workspace=server"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "keywords": [
+    "property",
+    "map",
+    "interactive"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   }
 }
