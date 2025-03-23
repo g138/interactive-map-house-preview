@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-unused-vars */
 import React, { useState, useRef, useEffect } from 'react';
 import { useQuery, useLazyQuery } from '@apollo/client';
 import { ZoomIn, ZoomOut, Maximize } from 'lucide-react';
@@ -10,39 +12,71 @@ const InteractivePropertyMap = () => {
 	const { selectedProperty, setSelectedProperty, properties, setProperties } = useProperty();
 	const [scale, setScale] = useState(1);
 	const [position, setPosition] = useState({ x: 0, y: 0 });
-	const [isDragging, setIsDragging] = useState(false);
-	const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-	const [cursor, setCursor] = useState('grab');
-	const mapContainerRef = useRef(null);
+	const svgRef = useRef(null);
 
-	// Update cursor based on dragging state
-	useEffect(() => {
-		setCursor(isDragging ? 'grabbing' : 'grab');
-	}, [isDragging]);
-
-	// Prevent default wheel behavior
-	useEffect(() => {
-		const mapContainer = mapContainerRef.current;
-
-		if (mapContainer) {
-			const preventDefault = (e) => e.preventDefault();
-			mapContainer.addEventListener('wheel', preventDefault, { passive: false });
-
-			return () => {
-				mapContainer.removeEventListener('wheel', preventDefault);
-			};
-		}
-	}, []);
-
-	// Fetch properties using Apollo Client
 	const { loading, error, data } = useQuery(GET_PROPERTIES);
 
-	// Update properties in context when data is loaded
 	useEffect(() => {
 		if (data?.listProperties) {
 			setProperties(data.listProperties);
 		}
 	}, [data, setProperties]);
+
+	// Add event listeners to SVG elements
+	useEffect(() => {
+		const handleSvgLoad = () => {
+			const houseData = [];
+
+			setTimeout(() => {
+				if (!svgRef.current) return;
+
+				const svgDoc = svgRef.current.contentDocument;
+				if (!svgDoc) return;
+
+				const housesGroup = svgDoc.getElementById('Houses__x26__Apartments');
+
+				if (!housesGroup) {
+					console.error("Couldn't find the Houses & Apartments group in the SVG");
+					return;
+				}
+
+				const groupElements = housesGroup.querySelectorAll('g[id]');
+
+				groupElements.forEach((group) => {
+					const groupId = group.getAttribute('id');
+					const textElements = group.querySelectorAll('text tspan');
+					const textContents = Array.from(textElements).map((el) => el.textContent);
+					const rectElement = group.querySelector('rect');
+
+					const groupData = {
+						house_id: groupId,
+						text: textContents.length > 0 ? textContents : [],
+						x: rectElement ? parseFloat(rectElement.getAttribute('x')) : null,
+						y: rectElement ? parseFloat(rectElement.getAttribute('y')) : null,
+						element: group,
+					};
+
+					group.addEventListener('click', (e) => {
+						e.stopPropagation();
+						var x = groupData.x;
+						var y = groupData.y;
+
+						getHouseByLocation({ variables: { x, y } });
+					});
+				});
+			}, 500);
+		};
+
+		// Set up event listener for when the SVG loads
+		const svgElement = svgRef.current;
+		if (svgElement) {
+			svgElement.addEventListener('load', handleSvgLoad);
+
+			return () => {
+				svgElement.removeEventListener('load', handleSvgLoad);
+			};
+		}
+	}, [properties, setSelectedProperty]);
 
 	// Set up a lazy query for fetching property by click location
 	const [getHouseByLocation, { loading: locationLoading }] = useLazyQuery(GET_HOUSE_BY_LOCATION, {
@@ -54,57 +88,6 @@ const InteractivePropertyMap = () => {
 			}
 		},
 	});
-
-	// Mouse events for drag and zoom
-	const handleMouseDown = (e) => {
-		setIsDragging(true);
-		setDragStart({ x: e.clientX, y: e.clientY });
-	};
-
-	const handleMouseMove = (e) => {
-		if (!isDragging) return;
-
-		requestAnimationFrame(() => {
-			const dx = (e.clientX - dragStart.x) / scale;
-			const dy = (e.clientY - dragStart.y) / scale;
-
-			setPosition({
-				x: position.x + dx,
-				y: position.y + dy,
-			});
-
-			setDragStart({ x: e.clientX, y: e.clientY });
-		});
-	};
-
-	const handleMouseUp = () => {
-		setIsDragging(false);
-	};
-
-	// Mouse wheel zoom
-	const handleWheel = (e) => {
-		e.preventDefault();
-
-		// Determine zoom direction
-		const delta = e.deltaY < 0 ? 1.1 : 0.9;
-
-		// Calculate cursor position relative to the map
-		const rect = mapContainerRef.current.getBoundingClientRect();
-		const cursorX = (e.clientX - rect.left) / scale;
-		const cursorY = (e.clientY - rect.top) / scale;
-
-		// Calculate new scale
-		const newScale = Math.min(Math.max(scale * delta, 0.5), 3);
-
-		// Adjust position to zoom toward cursor position
-		const scaleFactor = newScale / scale;
-		const newX = cursorX - (cursorX - position.x) * scaleFactor;
-		const newY = cursorY - (cursorY - position.y) * scaleFactor;
-
-		// Update state
-		setScale(newScale);
-		setPosition({ x: newX, y: newY });
-	};
 
 	// Zoom controls
 	const handleZoomIn = () => {
@@ -120,46 +103,12 @@ const InteractivePropertyMap = () => {
 		setPosition({ x: 0, y: 0 });
 	};
 
-	// Handle map click to select properties
-	const handleMapClick = (e) => {
-		if (loading || isDragging) return;
-
-		const rect = mapContainerRef.current.getBoundingClientRect();
-		const x = Math.round((e.clientX - rect.left) / scale - position.x);
-		const y = Math.round((e.clientY - rect.top) / scale - position.y);
-
-		console.log(`Clicked at coordinates: (${x}, ${y})`);
-
-		// Use GraphQL query to find property at these coordinates
-		getHouseByLocation({ variables: { x, y } });
-	};
-
-	// Render property rectangles
-	const renderPropertyRectangles = () => {
-		return properties.map((property) => {
-			// Check if this property is selected
-			const isSelected = selectedProperty && selectedProperty.id === property.id;
-			const fillColor = isSelected ? 'rgba(20, 184, 166, 0.5)' : 'rgba(20, 184, 166, 0.2)';
-			const strokeColor = isSelected ? 'rgb(20, 184, 166)' : 'rgba(20, 184, 166, 0.6)';
-
-			// Calculate rectangle coordinates
-			const halfWidth = property.width / 2;
-			const halfHeight = property.height / 2;
-			const x = property.x - halfWidth;
-			const y = property.y - halfHeight;
-
-			return <rect key={property.id} x={x} y={y} width={property.width} height={property.height} fill={fillColor} stroke={strokeColor} strokeWidth="2" />;
-		});
-	};
-
 	return (
 		<div className="flex flex-col w-full min-h-screen bg-gray-50">
 			{/* Header */}
 			<Header />
 
-			{/* Main content */}
 			<div className="flex flex-col lg:flex-row flex-1 p-4">
-				{/* Map container */}
 				<div className="flex-1 bg-white rounded-md shadow-md overflow-hidden mb-4 lg:mb-0 lg:mr-4">
 					<div className="flex justify-between items-center p-4 border-b">
 						<h2 className="text-lg font-semibold prim-fg-1">Interactive Property Map</h2>
@@ -191,36 +140,15 @@ const InteractivePropertyMap = () => {
 								</button>
 							</div>
 						) : (
-							<div
-								ref={mapContainerRef}
-								className="relative overflow-hidden"
-								style={{ cursor }}
-								onMouseDown={handleMouseDown}
-								onMouseMove={handleMouseMove}
-								onMouseUp={handleMouseUp}
-								onMouseLeave={handleMouseUp}
-								onClick={handleMapClick}
-								onWheel={handleWheel}>
-								<div
-									style={{
-										transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
-										transformOrigin: '0 0',
-										transition: isDragging ? 'none' : 'transform 0.1s ease-out',
-									}}>
-									<img src="/images/Balmoston_Sample.svg" alt="Balmoston Donabate Property Map" className="max-w-full block" />
-
-									{/* Property Overlays */}
-									<svg
-										style={{
-											position: 'absolute',
-											top: 0,
-											left: 0,
-											width: '100%',
-											height: '100%',
-											pointerEvents: 'none',
-										}}>
-										{renderPropertyRectangles()}
-									</svg>
+							<div className="relative overflow-hidden">
+								<div>
+									<object
+										ref={svgRef}
+										data="/images/Balmoston_Sample.svg"
+										type="image/svg+xml"
+										className="max-w-full block"
+										style={{ pointerEvents: 'auto' }}
+									/>
 								</div>
 							</div>
 						)}
