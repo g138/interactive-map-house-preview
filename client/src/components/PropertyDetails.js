@@ -96,7 +96,7 @@ const PropertyDetails = () => {
 				</div>
 			)}
 
-			<button className="w-full py-2 prim-bg-1 text-white rounded hover:bg-teal-700 transition-colors">Request Information</button>
+			<button className="w-full py-2 prim-bg-1 text-white rounded transition-colors">Request Information</button>
 		</div>
 	);
 };

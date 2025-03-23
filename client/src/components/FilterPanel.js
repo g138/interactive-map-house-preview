@@ -45,14 +45,14 @@ const FilterPanel = ({ onApplyFilters, onResetFilters }) => {
 							<input
 								type="number"
 								placeholder="Min"
-								className="w-1/2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+								className="w-1/2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:prim-bg-1 focus:prim-bg-1 sm:text-sm"
 								value={priceMin}
 								onChange={(e) => setPriceMin(e.target.value)}
 							/>
 							<input
 								type="number"
 								placeholder="Max"
-								className="w-1/2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+								className="w-1/2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:prim-bg-1 focus:prim-bg-1 sm:text-sm"
 								value={priceMax}
 								onChange={(e) => setPriceMax(e.target.value)}
 							/>
@@ -62,7 +62,7 @@ const FilterPanel = ({ onApplyFilters, onResetFilters }) => {
 					<div>
 						<label className="block text-sm font-medium text-gray-700 mb-1">Bedrooms</label>
 						<select
-							className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+							className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:prim-bg-1 focus:prim-bg-1 sm:text-sm"
 							value={bedrooms}
 							onChange={(e) => setBedrooms(e.target.value)}>
 							<option value="">Any</option>
@@ -75,7 +75,7 @@ const FilterPanel = ({ onApplyFilters, onResetFilters }) => {
 
 					<div className="flex space-x-2 pt-2">
 						<button
-							className="w-1/2 px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+							className="w-1/2 px-4 py-2  text-white rounded-md prim-bg-1 text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:prim-bg-1"
 							onClick={handleApplyFilters}>
 							Apply Filters
 						</button>
