@@ -36,7 +36,10 @@ async function startServer() {
 	server.applyMiddleware({
 		app,
 		path: '/graphql',
-		cors: false, // Important: let express handle CORS
+		cors: {
+			origin: ['https://wonderful-ocean-082528d03.6.azurestaticapps.net', 'http://localhost:3000'],
+			credentials: true,
+		},
 	});
 
 	// Start Express server
