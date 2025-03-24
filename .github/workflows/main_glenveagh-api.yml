@@ -1,4 +1,4 @@
-name: Mono Repo CI/CD
+name: Azure Web Service CI/CD
 
 on:
   push:
