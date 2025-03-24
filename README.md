@@ -15,6 +15,9 @@ This application uses a modern web architecture with a fully decoupled frontend 
 -   **Database**: Azure Cosmos DB with MongoDB API
 -   **Deployment**: Automated deployment from GitHub repository
 
+<img src="https://www.mermaidchart.com/raw/158ce4b8-0251-4507-874a-7f980c85916d?theme=light&version=v0.1&format=svg" />
+
+
 ## Technology Stack
 
 ### Frontend
