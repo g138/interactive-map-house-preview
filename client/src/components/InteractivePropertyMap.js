@@ -75,10 +75,13 @@ const InteractivePropertyMap = () => {
 
 					group.addEventListener('click', (e) => {
 						e.stopPropagation();
-						var x = groupData.x;
-						var y = groupData.y;
 
-						getHouseByLocation({ variables: { x, y } });
+						if (properties.some((obj) => obj.house_id === groupData.house_id)) {
+							var x = groupData.x;
+							var y = groupData.y;
+
+							getHouseByLocation({ variables: { x, y } });
+						}
 					});
 				});
 			}, 500);
