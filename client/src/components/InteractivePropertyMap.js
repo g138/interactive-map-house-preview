@@ -235,7 +235,7 @@ const InteractivePropertyMap = () => {
 				</div>
 
 				{/* Property details panel */}
-				<div className="w-full lg:w-1/3 property-details rounded-md shadow-md p-4">
+				<div className="w-full lg:w-1/5 property-details rounded-md shadow-md p-4">
 					<PropertyDetails />
 				</div>
 			</div>
