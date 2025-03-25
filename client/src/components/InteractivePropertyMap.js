@@ -14,16 +14,46 @@ const InteractivePropertyMap = () => {
 	const { selectedProperty, setSelectedProperty, properties, setProperties } = useProperty();
 	const svgRef = useRef(null);
 	const [filterParams, setFilterParams] = useState(null);
+	const propertyDetailsRef = useRef(null); // Reference to property details section
 
 	const containerRef = useRef(null);
 	const [scale, setScale] = useState(1);
 	const [position, setPosition] = useState({ x: 0, y: 0 });
 	const [isDragging, setIsDragging] = useState(false);
 	const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+	const [isMobile, setIsMobile] = useState(false); // Track if we're on mobile
 
 	const { loading, error, data } = useQuery(GET_PROPERTIES, {
 		variables: { filter: filterParams },
 	});
+
+	// Check if device is mobile on component mount and window resize
+	useEffect(() => {
+		const checkMobile = () => {
+			setIsMobile(window.innerWidth < 1024);
+		};
+
+		checkMobile();
+
+		window.addEventListener('resize', checkMobile);
+
+		// Cleanup
+		return () => {
+			window.removeEventListener('resize', checkMobile);
+		};
+	}, []);
+
+	// Scroll to property details when a property is selected on mobile
+	useEffect(() => {
+		if (selectedProperty && isMobile && propertyDetailsRef.current) {
+			setTimeout(() => {
+				propertyDetailsRef.current.scrollIntoView({
+					behavior: 'smooth',
+					block: 'start',
+				});
+			}, 100);
+		}
+	}, [selectedProperty, isMobile]);
 
 	useEffect(() => {
 		if (data?.listProperties) {
@@ -162,6 +192,29 @@ const InteractivePropertyMap = () => {
 		transition: isDragging ? 'none' : 'transform 0.2s ease-out',
 	};
 
+	// Add touch support for mobile devices
+	const handleTouchStart = (e) => {
+		const touch = e.touches[0];
+		setIsDragging(true);
+		setDragStart({
+			x: touch.clientX - position.x,
+			y: touch.clientY - position.y,
+		});
+	};
+
+	const handleTouchMove = (e) => {
+		if (!isDragging) return;
+		const touch = e.touches[0];
+		setPosition({
+			x: touch.clientX - dragStart.x,
+			y: touch.clientY - dragStart.y,
+		});
+	};
+
+	const handleTouchEnd = () => {
+		setIsDragging(false);
+	};
+
 	return (
 		<div className="flex flex-col w-full min-h-screen bg-gray-50">
 			{/* Header */}
@@ -214,6 +267,9 @@ const InteractivePropertyMap = () => {
 								onMouseMove={handleMouseMove}
 								onMouseUp={handleMouseUp}
 								onMouseLeave={handleMouseLeave}
+								onTouchStart={handleTouchStart}
+								onTouchMove={handleTouchMove}
+								onTouchEnd={handleTouchEnd}
 								onWheel={(e) => {
 									e.preventDefault();
 									if (e.deltaY < 0) {
@@ -238,8 +294,26 @@ const InteractivePropertyMap = () => {
 				</div>
 
 				{/* Property details panel */}
-				<div className="w-full lg:w-1/5 property-details rounded-md shadow-md p-4">
+				<div ref={propertyDetailsRef} id="property-details-section" className="w-full lg:w-1/5 property-details rounded-md shadow-md p-4">
+					{/* Scroll indicator for mobile */}
+					{selectedProperty && isMobile && <div className="lg:hidden mb-2 text-center text-sm text-gray-500">Property details ↓</div>}
 					<PropertyDetails />
+
+					{/* Back to map button for mobile */}
+					{selectedProperty && isMobile && (
+						<div className="lg:hidden mt-4 text-center">
+							<button
+								onClick={() => {
+									containerRef.current?.scrollIntoView({
+										behavior: 'smooth',
+										block: 'start',
+									});
+								}}
+								className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
+								Back to Map
+							</button>
+						</div>
+					)}
 				</div>
 			</div>
 		</div>
